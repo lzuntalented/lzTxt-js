@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		
+		<title></title>
+		<style type="text/css">
+			html,body{
+				margin: 0 0;
+				padding: 0 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			/*#canvas{
+				width: 100%;
+				height: 100%;
+			}*/
+			#next{
+				position: fixed;
+				bottom: 0px;
+				right: 0px;
+				width: 20px;
+				height: 20px;
+				background: firebrick;
+				opacity: 0.6;
+			}
+			#before{
+				position: fixed;
+				bottom: 0px;
+				left: 0px;
+				width: 20px;
+				height: 20px;
+				background: firebrick;
+				opacity: 0.6;
+			}
+		</style>
+	</head>
+	<body>
+		<!--<div id="next"></div>
+		<div id="before"></div>-->
+		<canvas id="canvas" ></canvas>
+		<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var canvas = document.getElementById("canvas");
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			var ctx = canvas.getContext("2d");
+			
+			/*字体尺寸*/
+			var font = {
+				size: 16
+			}
+			/*面板尺寸*/
+			var panel = {
+				col: Math.floor(canvas.width / font.size),//列数
+				row: Math.floor(canvas.height / font.size),//行数
+				space: 2,
+			}
+
+			ctx.fillStyle = "black";
+			ctx.font = font.size + "px 微软雅黑";
+			
+			var str_write = txt.t;
+			var str_write_list = str_write.split("\r\n");
+
+			/*本页开始*/
+			var page_begin = {
+				line: 0,//当前行
+				offset: 0//当前偏移量
+			};
+			/*本页结束*/
+			var page_end = {
+				line: 0,//当前行
+				offset: 0//当前偏移量
+			}
+			
+			/*下一屏页*/
+			function write(){
+				var cur = page_end.line;
+				page_begin.line  = page_end.line;
+				page_begin.offset = page_end.offset;
+
+				check(cur);
+			}
+
+			/*开始真实绘制下一屏*/
+			function check(current){
+				ctx.clearRect(0,0,canvas.width,canvas.height);
+				
+				var total = panel.col * panel.row * 2;//字符有占一位和两位的，一行最多可绘制2倍长度
+				var count = 0;
+				var tag = false;
+
+				var tmp_all_write = [];
+				var isBreak = false;//检查是否正常跳出
+				while(current < str_write_list.length){
+					
+					var len = str_write_list[current].length;
+					var tmp_write = [];
+					var str = str_write_list[current];
+					var start = 0;
+					if(!tag){
+						start = page_end.offset;
+						tag = true;
+					}
+					
+					var tmp = 0;
+					var begin = start;
+					for(var i = start; i < len ; i ++ ){
+						//逐个检查
+						if(tmp >= panel.col * 2 - 1){
+							tmp_write.push(str.substring(begin,i));
+							begin = i;
+							tmp = 0;
+						}
+						
+						var len_char = 1;
+						if(str.charCodeAt(i) > 128){
+							len_char = 2;
+						}
+						
+						tmp += len_char;
+					}
+					
+					if(tmp > 0){
+						tmp_write.push(str.substring(begin,i))
+					}
+					
+					if(str == "") {
+						tmp_write.push("");
+					};
+					
+					var offset = 0;
+					if(tmp_all_write.length + tmp_write.length > panel.row) {
+						for(var i = 0 ; i < tmp_all_write.length ; i ++){
+							ctx.fillText(tmp_all_write[i],0, (i + 1) * font.size);
+						}
+						
+						for(var j = 0 ; j < tmp_write.length && j + i < panel.row ; j ++){
+							offset += tmp_write[j].length;
+							ctx.fillText(tmp_write[j],0, (i + j + 1) * font.size);
+						}
+						page_end.line = current;
+						page_end.offset = offset;
+						isBreak = true;
+						break	;
+					}
+		
+					tmp_all_write = tmp_all_write.concat(tmp_write);
+
+					current ++;
+				}
+				/*未正常跳出，表示到达书尾，直接绘制*/
+				if(!isBreak){
+					for(var i = 0 ; i < tmp_all_write.length ; i ++){
+						ctx.fillText(tmp_all_write[i],0, (i + 1) * font.size);
+					}
+				}
+				
+			}
+
+			
+			/*绘制首屏*/
+			write();
+
+
+//			document.getElementById("next").addEventListener("click",function(){
+//				if(page_end.line >= str_write_list.length) return false;
+//				write();
+//
+//			});
+//			
+//			document.getElementById("before").addEventListener("click",function(){
+//				if(page_begin.line <= 0) return false;
+//				write_before();
+//
+//			});
+			
+			/*上一页*/
+			function write_before(){
+				var tag = false;
+				var total = panel.col * panel.row * 2;
+				var count = 0;
+				var line = page_begin.offset > 0 ? page_begin.line : page_begin.line - 1 ;
+				var t = 0;
+				var tmp_all_write = [];
+				while(line >= 0){
+					
+					var len = str_write_list[line].length;
+					var tmp_write = [];
+					var str = str_write_list[line];
+					var start = len;
+					if(!tag){
+						if(page_begin.offset > 0 ){
+							start = page_begin.offset
+						}
+
+						tag = true;
+					}
+					
+					var tmp = 0;
+					var begin = 0;
+					for(var i = 0; i < start ; i ++ ){
+						//逐个检查
+						if(tmp >= panel.col * 2  - 1){
+							tmp_write.push(str.substring(i,begin));
+							begin = i;
+							tmp = 0;
+						}
+						
+						var len_char = 1;
+						if(str.charCodeAt(i) > 128){
+							len_char = 2;
+						}
+						
+						tmp += len_char;
+					}
+					
+					if(tmp > 0){
+						tmp_write.push(str.substring(begin,i))
+					}
+					
+					/*此行为空行，也单独占一行*/
+					if(str == "") {
+						tmp_write.push("");
+					};
+					
+					var offset = 0;
+					if(tmp_all_write.length + tmp_write.length >= panel.row) {
+						ctx.clearRect(0,0,canvas.width,canvas.height);
+						var y = panel.row;
+						
+						for(var i = tmp_all_write.length - 1 ; i >= 0  ; i --){
+							ctx.fillText(tmp_all_write[i],0, (y--) * font.size);
+						}
+						i = tmp_all_write.length;
+//						
+						var k = 0;
+						for(var j = tmp_write.length - 1 ; j >= 0 && (k + i) < panel.row ; j --){
+							offset += tmp_write[j].length;
+							k++;
+							ctx.fillText(tmp_write[j],0, (y--) * font.size);
+						}
+						
+						/*重置页尾数据*/
+						page_end.line = page_begin.line;
+						page_end.offset = page_begin.offset;
+						/*重置页头数据*/
+						page_begin.line = line;
+						page_begin.offset = str.length - offset;
+						break	
+					}
+
+					tmp_all_write = tmp_write.concat(tmp_all_write);
+
+					line --;
+				}
+			}
+			
+			document.addEventListener("click",function(e){
+				var x = e.pageX;
+				if(x > canvas.width / 2){
+					write();
+				}else{
+					write_before();
+				}
+			});
+		</script>
+	</body>
+</html>
