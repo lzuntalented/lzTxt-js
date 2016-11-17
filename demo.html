@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		
+		<title></title>
+		<style type="text/css">
+			html,body{
+				margin: 0 0;
+				padding: 0 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			/*#canvas{
+				width: 100%;
+				height: 100%;
+			}*/
+			#next{
+				position: fixed;
+				bottom: 0px;
+				right: 0px;
+				width: 20px;
+				height: 20px;
+				background: firebrick;
+				opacity: 0.6;
+			}
+			#before{
+				position: fixed;
+				bottom: 0px;
+				left: 0px;
+				width: 20px;
+				height: 20px;
+				background: firebrick;
+				opacity: 0.6;
+			}
+			.pop{
+				position: fixed;
+				bottom: 0px;
+				left: 0px;
+				height: 80px;
+				background: #333333;
+				z-index: 100;
+				width: 100%;
+				color: white;
+				text-align: center;
+				display: none;
+			}
+			.progress{
+				position: absolute;
+				width: 80%;
+				height: 2px;
+				background: white;
+				left: 10%;
+				top: 20px;
+			}
+			#progress_top{
+				position: absolute;
+				width: 10%;
+				height: 2px;
+				background: gold;
+				left: 10%;
+				top: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<input type="file" name="next" id="next" value="" />
+		<!--<div id="next"></div>
+		<div id="before"></div>-->
+		<canvas id="canvas" >
+		</canvas>
+		<div class="pop" id="pop">
+			<span id="page">1</span> / <span id="total">12</span>
+			<div style="position: relative;">
+				<div class="progress"></div>
+				<div id="progress_top"></div>
+			</div>
+		</div>
+		<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/lzTxt.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var canvas = document.getElementById("canvas");
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			var ctx = canvas.getContext("2d");
+			
+			/*字体尺寸*/
+			var font = {
+				size: 16
+			}
+//			/*面板尺寸*/
+//			var panel = {
+//				col: Math.floor(canvas.width / font.size),//列数
+//				row: Math.floor(canvas.height / font.size),//行数
+//				space: 2,
+//			}
+
+			ctx.fillStyle = "black";
+			ctx.font = font.size + "px 微软雅黑";
+			
+//			var str_write = txt.t;
+//			var str_write_list = str_write.split("\r\n");
+			
+//			lzTxt.init({
+//				origin_txt : txt.t,
+//				width : canvas.width,
+//				height : canvas.height
+//			});
+//			
+//			
+//			var current = 1;
+//			document.addEventListener("click",function(e){
+//				var x = e.pageX;
+//				var page = current;
+//				if(x > canvas.width / 2){
+//					drawImage();
+//					page ++;
+//				}else{
+//					drawImage();
+//					page --;
+//				}
+//				lzTxt.render(page) && (current = page);
+//			});
+//			lzTxt.render(1);
+//			
+//			var draw_inteval;
+//			function drawImage(direction){
+//				
+//				var src = canvas.toDataURL("image/png");
+//				var img = document.createElement("img");
+//				img.src = src;
+//				img.width = canvas.width;
+//				img.height = canvas.height;
+//				img.style.position = "absolute";
+//				img.style.top = "0px";
+//				img.style.left = "0px";
+//				img.style.background = "white";
+//				document.body.appendChild(img);
+//				
+//				draw_inteval = setInterval(function(){
+//					var left = img.offsetLeft;
+//					if(left < -canvas.width){
+//						clearInterval(draw_inteval);
+//					}
+//					
+//					img.style.left = (left - canvas.width / 24) + "px";
+//				},1000 / 60);
+//			}
+
+			function getStyle(dom,styleName){
+				if(dom.currentStyle){//ie 
+					return dom.currentStyle[styleName]; 
+				}else{ //ff 
+					var $arr=dom.ownerDocument.defaultView.getComputedStyle(dom, null); 
+					return $arr[styleName]; 
+				} 
+			}
+			
+//			var pop = document.getElementById("pop");
+//			console.log(getStyle(pop,"display"));
+
+						
+			document.getElementById("next").onchange = function(e){
+//				start_loading();
+				var file = this.files[0];
+//				console.log(file);
+				var reader = new FileReader();
+		        reader.readAsText(file,"gb2312");
+		        console.time("onload");
+		        reader.onprogress = function(e){
+		        	console.log(e.loaded / e.total);
+		        }
+		        reader.onload = function(e){
+		        	console.timeEnd("onload");
+		          	var result =  this.result ;
+//		          	console.log(result);
+					console.time("init");
+	          		lzTxt.init({
+						origin_txt : result,
+						width : canvas.width,
+						height : canvas.height,
+						
+//						hook_page_start: start_loading,//开始分页计算
+						hook_page_end: function(){
+							lzTxt.render(1);
+//							end_loading();
+						},//结束分页计算
+						
+						page_draw_start: function(){
+							ctx.fillStyle = "blanchedalmond";
+							ctx.fillRect(0,0,canvas.width,canvas.height);
+							ctx.fillStyle = "#333333";
+						}
+					});
+					console.timeEnd("init");
+					
+					var current = 1;
+					var pop_show = false;
+					document.addEventListener("click",function(e){
+						var x = e.pageX;
+						var y = e.pageY;
+						var pop = document.getElementById("pop");
+						if(getStyle(pop,"display") == "block"){
+							pop.style.display = "none";
+							return ;
+						}
+
+						if(x < canvas.width * 0.8 && x > canvas.width * 0.2 && y > canvas.height * 0.4 && y < canvas.height * 0.6){
+							pop.style.display = "block";
+							var page = document.getElementById("page");
+							var total = document.getElementById("total");
+							var obj = lzTxt.get_progress();
+							page.innerHTML = obj.page;
+							total.innerHTML = obj.total;
+							var progress_top = document.getElementById("progress_top");
+							progress_top.style.width = (obj.page / obj.total * 100) + "%";
+							return ;
+						}
+						var page = current;
+						if(x > canvas.width / 2){
+							page ++;
+						}else{
+							page --;
+						}
+						lzTxt.render(page) && (current = page);
+					});
+//					reader.abort();
+					lzTxt.render(1);
+		        };
+
+			};
+
+			(function(){
+				/*绘制加载中动画*/
+				function draw_loading(start_angle){
+					ctx.clearRect(0,0,canvas.width,canvas.height);
+					
+					ctx.beginPath();
+					ctx.fillStyle = "aquamarine";
+					ctx.moveTo(canvas.width / 2,canvas.height / 2);
+					ctx.arc(canvas.width / 2,canvas.height / 2,60,start_angle,2  * Math.PI);
+					ctx.fill();
+					
+					ctx.beginPath();
+					ctx.fillStyle = "white";
+					ctx.moveTo(canvas.width / 2,canvas.height / 2);
+					ctx.arc(canvas.width / 2,canvas.height / 2,50,start_angle,2  * Math.PI);
+					ctx.fill();
+				}
+				
+				var angle_invterval;
+				function start_loading(){
+					var start_ang = 0;
+					angle_invterval = setInterval(function(){
+						var angle = Math.PI * 2 * ((90 - start_ang) / 90);
+		
+						draw_loading(angle);
+						++start_ang;
+						start_ang %= 90;
+					},1000 / 60);
+					draw_loading(start_ang);
+				}
+				
+				function end_loading(){
+					window.clearInterval(angle_invterval);
+				}
+				
+				window.start_loading = start_loading;
+				window.end_loading = end_loading;
+			})();
+			
+		</script>
+	</body>
+</html>
