@@ -6,6 +6,9 @@
 		
 		<title></title>
 		<style type="text/css">
+		html{
+			font-size: 62.5%;
+		}
 			html,body{
 				margin: 0 0;
 				padding: 0 0;
@@ -18,13 +21,19 @@
 				height: 100%;
 			}*/
 			#next{
-				position: fixed;
+				/*position: fixed;
 				bottom: 0px;
 				right: 0px;
 				width: 20px;
 				height: 20px;
-				background: firebrick;
-				opacity: 0.6;
+				background: firebrick;*/
+				opacity: 0;
+				height: 30px;
+			    position: absolute;
+			    left: 0px;
+			    top: 0px;
+			    width: 1000px;
+			    height: 1000px;
 			}
 			#before{
 				position: fixed;
@@ -44,7 +53,7 @@
 				z-index: 100;
 				width: 100%;
 				color: white;
-				text-align: center;
+				padding: 10px 0px;
 				display: none;
 			}
 			.progress{
@@ -53,29 +62,120 @@
 				height: 2px;
 				background: white;
 				left: 10%;
-				top: 20px;
+				top: 5px;
 			}
-			#progress_top{
+			#progress_top{ 
 				position: absolute;
 				width: 10%;
 				height: 2px;
 				background: gold;
 				left: 10%;
-				top: 20px;
+				top: 5px;
+			}
+			.netx-container{
+				top: 0px;
+				left: 0px;
+	 			right: 0px;
+				bottom: 0px;
+				width: 50%;
+				margin: auto;
+				position: absolute;
+				height: 100%;
+				height: 35px;
+				text-align: center;
+				line-height: 35px;
+				font-size: 2rem;
+				border: 1px solid #cacaca;
+				border-radius: 5px;
+				overflow: hidden;
+			}
+			.page-container{
+				border-bottom: 1px solid #CACACA;
+				font-size: 1.6rem;
+				height: 35px;
+				text-align: center;
+
+			}
+			.progress-container{
+				position: relative;
+			}
+			.font-container{
+				width: 50%;
+				border: 1px solid #CACACA;
+				border-radius: 5px;
+				display: flex;
+			}
+			.font-container span{
+				flex: 3;
+				box-sizing: border-box;
+				/*width: 33%;*/
+				/*float: left;*/
+				display: inline-block;
+				text-align: center;
+				font-size: 1.6rem;
+				height: 25px;
+				line-height: 25px;
+				border-left: 1px solid #CACACA;
+			}
+			.font-container span:first-child{
+				border-left: 0px solid #CACACA;
+			}
+			.font-container .active{
+				background: gold;
+				color: #333333;
+			}
+			.bottom-cont{
+				position: relative;
+				width: 90%;
+				margin: 0 auto;
+				margin-top: 10px;
+			}
+			.color-container{
+				position: absolute;
+				right: 10%;
+				top: 0px;
+			}
+			.color-container span{
+				width: 50%;
+				float: left;
+				display: block;
+				width: 25px;
+				height: 25px;
+				background: blanchedalmond;
+				border-radius: 50%;
+				border: 1px solid #CACACA;
+				margin-left: 10px;
 			}
 		</style>
 	</head>
 	<body>
-		<input type="file" name="next" id="next" value="" />
+		<div class="netx-container" id="showchange">
+			<span >选择书籍</span>
+			<input type="file" name="next" id="next" value="" />
+		</div>
+
 		<!--<div id="next"></div>
 		<div id="before"></div>-->
 		<canvas id="canvas" >
 		</canvas>
 		<div class="pop" id="pop">
-			<span id="page">1</span> / <span id="total">12</span>
-			<div style="position: relative;">
-				<div class="progress"></div>
-				<div id="progress_top"></div>
+			<div class="page-container">
+				<span id="page">1</span> / <span id="total">12</span>
+				<div class="progress-container">
+					<div class="progress"></div>
+					<div id="progress_top"></div>
+				</div>
+			</div>
+			<div class="bottom-cont">
+				<div class="font-container">
+					<span data-size="0">A-</span>
+					<span data-size="1" class="active">A</span>
+					<span data-size="2">A+</span>
+				</div>
+				<div class="color-container">
+					<span data-size="0"></span>
+					<span data-size="1" style="background: white;"></span>
+				</div>
 			</div>
 		</div>
 		<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
@@ -84,11 +184,21 @@
 			var canvas = document.getElementById("canvas");
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
-			var ctx = canvas.getContext("2d");
+			var winSize = {
+				width: window.innerWidth,
+				height : window.innerHeight
+			}
 			
+		</script>
+		<script src="js/hidpi-canvas.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		
+			
+			
+			var ctx = canvas.getContext("2d");
 			/*字体尺寸*/
 			var font = {
-				size: 16
+				size: 18
 			}
 //			/*面板尺寸*/
 //			var panel = {
@@ -99,7 +209,7 @@
 
 			ctx.fillStyle = "black";
 			ctx.font = font.size + "px 微软雅黑";
-			
+//			ctx.fillText("顺四方上下曰宇。宇虽有实，而无定处可求。往古来今曰宙。宙虽有增长，不知其始之所至。",0,font.size);
 //			var str_write = txt.t;
 //			var str_write_list = str_write.split("\r\n");
 			
@@ -158,11 +268,31 @@
 				} 
 			}
 			
+			var arr_bg = [{
+				bg: "blanchedalmond",
+				txt: "#333333"
+			},{
+				bg: "white",
+				txt: "#333333"
+			}];
+			var arr_bg_index = 0;
+			
 //			var pop = document.getElementById("pop");
 //			console.log(getStyle(pop,"display"));
 
+			document.querySelectorAll(".color-container span").forEach(function(elem){
+			elem.addEventListener("click",function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				
+				var index = this.getAttribute("data-size");
+				arr_bg_index = index;
+				lzTxt.re_render();
+			},false);
+		});
 						
 			document.getElementById("next").onchange = function(e){
+				document.getElementById("showchange").style.display = "none";
 //				start_loading();
 				var file = this.files[0];
 //				console.log(file);
@@ -179,8 +309,11 @@
 					console.time("init");
 	          		lzTxt.init({
 						origin_txt : result,
-						width : canvas.width,
-						height : canvas.height,
+						panel: {
+							width : winSize.width,
+							height : winSize.height,
+						},
+						fontSize : font.size,
 						
 //						hook_page_start: start_loading,//开始分页计算
 						hook_page_end: function(){
@@ -189,9 +322,11 @@
 						},//结束分页计算
 						
 						page_draw_start: function(){
-							ctx.fillStyle = "blanchedalmond";
+							ctx.fillStyle = arr_bg[arr_bg_index].bg;
 							ctx.fillRect(0,0,canvas.width,canvas.height);
-							ctx.fillStyle = "#333333";
+							ctx.fillStyle = arr_bg[arr_bg_index].txt;
+							
+							ctx.font = lzTxt.get_font_size() + "px 微软雅黑";
 						}
 					});
 					console.timeEnd("init");
@@ -199,6 +334,8 @@
 					var current = 1;
 					var pop_show = false;
 					document.addEventListener("click",function(e){
+						e.preventDefault();
+
 						var x = e.pageX;
 						var y = e.pageY;
 						var pop = document.getElementById("pop");
@@ -207,7 +344,7 @@
 							return ;
 						}
 
-						if(x < canvas.width * 0.8 && x > canvas.width * 0.2 && y > canvas.height * 0.4 && y < canvas.height * 0.6){
+						if(x < winSize.width * 0.8 && x > winSize.width * 0.2 && y > winSize.height * 0.4 && y < winSize.height * 0.6){
 							pop.style.display = "block";
 							var page = document.getElementById("page");
 							var total = document.getElementById("total");
@@ -219,12 +356,26 @@
 							return ;
 						}
 						var page = current;
-						if(x > canvas.width / 2){
+						if(x > winSize.width / 2){
 							page ++;
 						}else{
 							page --;
 						}
 						lzTxt.render(page) && (current = page);
+					},false);
+					
+					document.querySelectorAll(".font-container span").forEach(function(elem){
+						elem.addEventListener("click",function(e){
+							e.preventDefault();
+//							e.stopPropagation();
+							
+							document.querySelectorAll(".font-container span").forEach(function(elem){
+								elem.className = "";
+							});
+							this.className = "active";
+							var index = this.getAttribute("data-size");
+							lzTxt.reRender(index);
+						},false);
 					});
 //					reader.abort();
 					lzTxt.render(1);
