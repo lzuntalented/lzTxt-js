@@ -280,16 +280,18 @@
 //			var pop = document.getElementById("pop");
 //			console.log(getStyle(pop,"display"));
 
-			document.querySelectorAll(".color-container span").forEach(function(elem){
-			elem.addEventListener("click",function(e){
-				e.preventDefault();
-				e.stopPropagation();
-				
-				var index = this.getAttribute("data-size");
-				arr_bg_index = index;
-				lzTxt.re_render();
-			},false);
-		});
+			var span_list = document.querySelectorAll(".color-container span");
+			for(var i = 0 ; i < span_list.length ; ++i){
+				var elem = span_list[i];
+				elem.addEventListener("click",function(e){
+					e.preventDefault();
+					e.stopPropagation();
+					
+					var index = this.getAttribute("data-size");
+					arr_bg_index = index;
+					lzTxt.re_render();
+				},false);
+			}
 						
 			document.getElementById("next").onchange = function(e){
 				document.getElementById("showchange").style.display = "none";
@@ -364,19 +366,23 @@
 						lzTxt.render(page) && (current = page);
 					},false);
 					
-					document.querySelectorAll(".font-container span").forEach(function(elem){
+					var span_list = document.querySelectorAll(".font-container span");
+					for(var i = 0 ; i < span_list.length ; ++i){
+						var elem = span_list[i];
 						elem.addEventListener("click",function(e){
 							e.preventDefault();
 //							e.stopPropagation();
 							
-							document.querySelectorAll(".font-container span").forEach(function(elem){
-								elem.className = "";
-							});
+							for(var j = 0 ; j < span_list.length ; ++j){
+								var elem1 = span_list[j];
+								elem1.className = "";
+							}
+							
 							this.className = "active";
 							var index = this.getAttribute("data-size");
 							lzTxt.reRender(index);
 						},false);
-					});
+					};
 //					reader.abort();
 					lzTxt.render(1);
 		        };
