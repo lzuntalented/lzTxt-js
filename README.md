@@ -9,7 +9,9 @@
 3.添加绘制的字体可选。
 4.添加绘制的颜色可选。
 
->先附上几张图：
+>[demo](http://www.lzuntalented.cn/txt/demo.html)
+
+>美化后的截图：
 ![选择书籍](http://upload-images.jianshu.io/upload_images/1031450-422e9f59236095ba.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ![查看内容](http://upload-images.jianshu.io/upload_images/1031450-1784248fd01bb512.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
