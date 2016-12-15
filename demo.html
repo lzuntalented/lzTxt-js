@@ -235,29 +235,44 @@
 //			});
 //			lzTxt.render(1);
 //			
-//			var draw_inteval;
-//			function drawImage(direction){
-//				
-//				var src = canvas.toDataURL("image/png");
-//				var img = document.createElement("img");
-//				img.src = src;
-//				img.width = canvas.width;
-//				img.height = canvas.height;
-//				img.style.position = "absolute";
-//				img.style.top = "0px";
-//				img.style.left = "0px";
-//				img.style.background = "white";
-//				document.body.appendChild(img);
-//				
-//				draw_inteval = setInterval(function(){
-//					var left = img.offsetLeft;
-//					if(left < -canvas.width){
-//						clearInterval(draw_inteval);
-//					}
-//					
-//					img.style.left = (left - canvas.width / 24) + "px";
-//				},1000 / 60);
-//			}
+			
+			
+
+			/*
+			 * 翻页动画
+			 */
+			function drawImage(direction){
+				
+				var src = canvas.toDataURL("image/png");
+				var img = document.createElement("img");
+				img.src = src;
+				img.width = winSize.width;
+				img.height = winSize.height;
+				img.style.position = "absolute";
+				img.style.top = "0px";
+				img.style.left = "0px";
+				img.style.background = "white";
+				document.body.appendChild(img);
+				var draw_inteval;
+				draw_inteval = setInterval(function(){
+					var left = img.offsetLeft;
+					if(direction == 1){
+						if(left < - winSize.width){
+							clearInterval(draw_inteval);
+						}
+						
+						img.style.left = (left - canvas.width / 24) + "px";
+					}else if(direction == 3){
+						if(left > winSize.width){
+							clearInterval(draw_inteval);
+						}
+						
+						img.style.left = (left + canvas.width / 24) + "px";
+					}
+					
+				},1000 / 45);
+			}
+
 
 			function getStyle(dom,styleName){
 				if(dom.currentStyle){//ie 
@@ -268,6 +283,7 @@
 				} 
 			}
 			
+			/*背景和字体配色方案*/
 			var arr_bg = [{
 				bg: "blanchedalmond",
 				txt: "#333333"
@@ -275,11 +291,12 @@
 				bg: "white",
 				txt: "#333333"
 			}];
-			var arr_bg_index = 0;
+			var arr_bg_index = 0;//当前使用的配色方案序列
 			
 //			var pop = document.getElementById("pop");
 //			console.log(getStyle(pop,"display"));
 
+			/*为配色方案选择添加事件*/
 			var span_list = document.querySelectorAll(".color-container span");
 			for(var i = 0 ; i < span_list.length ; ++i){
 				var elem = span_list[i];
@@ -289,15 +306,15 @@
 					
 					var index = this.getAttribute("data-size");
 					arr_bg_index = index;
-					lzTxt.re_render();
+					lzTxt.re_render();//调用重绘
 				},false);
 			}
 						
 			document.getElementById("next").onchange = function(e){
 				document.getElementById("showchange").style.display = "none";
-//				start_loading();
+//				start_loading();//开始loging动画
 				var file = this.files[0];
-//				console.log(file);
+
 				var reader = new FileReader();
 		        reader.readAsText(file,"gb2312");
 		        console.time("onload");
@@ -307,7 +324,7 @@
 		        reader.onload = function(e){
 		        	console.timeEnd("onload");
 		          	var result =  this.result ;
-//		          	console.log(result);
+
 					console.time("init");
 	          		lzTxt.init({
 						origin_txt : result,
@@ -320,7 +337,7 @@
 //						hook_page_start: start_loading,//开始分页计算
 						hook_page_end: function(){
 							lzTxt.render(1);
-//							end_loading();
+//							end_loading();//结束loading动画
 						},//结束分页计算
 						
 						page_draw_start: function(){
@@ -335,6 +352,7 @@
 					
 					var current = 1;
 					var pop_show = false;
+					/*添加全局点击事件处理*/
 					document.addEventListener("click",function(e){
 						e.preventDefault();
 
@@ -345,7 +363,8 @@
 							pop.style.display = "none";
 							return ;
 						}
-
+						
+						/*点击中心区域展示配置*/
 						if(x < winSize.width * 0.8 && x > winSize.width * 0.2 && y > winSize.height * 0.4 && y < winSize.height * 0.6){
 							pop.style.display = "block";
 							var page = document.getElementById("page");
@@ -357,15 +376,21 @@
 							progress_top.style.width = (obj.page / obj.total * 100) + "%";
 							return ;
 						}
+						
+						/*页面切换*/
 						var page = current;
 						if(x > winSize.width / 2){
 							page ++;
+							drawImage(1);
 						}else{
 							page --;
+							if(page > 0)
+								drawImage(3);
 						}
 						lzTxt.render(page) && (current = page);
 					},false);
 					
+					/*为字体方案选择添加事件*/
 					var span_list = document.querySelectorAll(".font-container span");
 					for(var i = 0 ; i < span_list.length ; ++i){
 						var elem = span_list[i];
@@ -388,7 +413,12 @@
 		        };
 
 			};
-
+			
+			/*
+			 *因加载文件会出现页面卡住现象，特意加上loading动画
+			 * 经过多方测试，发现此时间段并不能绘制，仍在摸索中。。。
+			 * 欢迎大家提供解决方案
+			 */
 			(function(){
 				/*绘制加载中动画*/
 				function draw_loading(start_angle){
